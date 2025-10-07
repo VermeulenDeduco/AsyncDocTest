@@ -28,9 +28,6 @@ operations:
     action: send
     channel:
       $ref: '#/channels/stockReservation'
-    messages:
-      # CORRECTED: Added messages array pointing to components
-      - $ref: '#/components/messages/StockReserved'
 
 components:
   messages:
@@ -44,3 +41,5 @@ components:
           status:
             type: string
             enum:
+              - RESERVED
+              - OUT_OF_STOCK
