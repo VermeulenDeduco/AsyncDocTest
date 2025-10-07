@@ -43,7 +43,8 @@ operations:
     channel:
       $ref: '#/channels/shipmentRequest'
     messages:
-      - $ref: '#/channels/shipmentRequest/messages/ShipmentPreparationRequested'
+      # CORRECTED: Points directly to the components section
+      - $ref: '#/components/messages/ShipmentPreparationRequested'
 
   onShipmentPrepared:
     action: receive
@@ -60,7 +61,6 @@ components:
         $ref: '../common/schemas/OrderPayload.yml'
       bindings:
         mqtt:
-          # This is key for request-reply: we tell the receiver where to send the reply.
           responseTopic: 'ecommerce/order/shipping_reply'
 
     ShipmentPrepared:

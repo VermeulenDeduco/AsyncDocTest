@@ -28,6 +28,9 @@ operations:
     action: send
     channel:
       $ref: '#/channels/stockReservation'
+    messages:
+      # CORRECTED: Added messages array pointing to components
+      - $ref: '#/components/messages/StockReserved'
 
 components:
   messages:

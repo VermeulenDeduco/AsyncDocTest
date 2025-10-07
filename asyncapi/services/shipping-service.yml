@@ -13,10 +13,6 @@ channels:
       ShipmentPreparationRequested:
         $ref: '#/components/messages/ShipmentPreparationRequested'
 
-  # Note: The reply channel is not explicitly defined here because this service
-  # publishes to the dynamic 'responseTopic' provided in the request message.
-  # We define the message that will be sent as a reply in the components section.
-
 operations:
   onShipmentRequest:
     action: receive
@@ -25,9 +21,8 @@ operations:
 
   sendShipmentReply:
     action: send
-    # This operation sends a message, but the channel is dynamic based on the
-    # incoming request's responseTopic. This is a key concept in request-reply.
     messages:
+      # CORRECTED: Points directly to the components section
       - $ref: '#/components/messages/ShipmentPrepared'
 
 components:
@@ -40,7 +35,6 @@ components:
         $ref: '../common/schemas/OrderPayload.yml'
       bindings:
         mqtt:
-          # This binding indicates that this service EXPECTS a responseTopic in the header.
           responseTopic:
             type: string
 
