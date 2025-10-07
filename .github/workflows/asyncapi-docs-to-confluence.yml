@@ -31,11 +31,18 @@ jobs:
         run: |
           mkdir -p build/docs
           for spec_file in $(find asyncapi/services -name '*.yml'); do
+            # Isolate the directory and the filename from the full path
+            spec_dir=$(dirname "$spec_file")
+            spec_filename=$(basename "$spec_file")
             service_name=$(basename -s.yml "$spec_file")
-            echo "Generating documentation for $service_name..."
-            asyncapi generate fromTemplate "$spec_file" @asyncapi/html-template@3.3.1 \
-              -o "./build/docs/$service_name" \
-              --force-write
+            
+            echo "Generating documentation for $service_name in context of $spec_dir..."
+            
+            # Use a subshell (...) to change directory, run the command, and then automatically return
+            # This ensures relative paths inside the YAML ('../common/...') are resolved correctly.
+            (cd "$spec_dir" && asyncapi generate fromTemplate "$spec_filename" @asyncapi/html-template@3.3.1 \
+              -o "../../build/docs/$service_name" \
+              --force-write)
           done
 
       - name: Generate System-Wide Architecture Diagram
