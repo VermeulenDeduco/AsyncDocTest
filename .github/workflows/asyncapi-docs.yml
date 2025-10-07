@@ -1,4 +1,4 @@
-name: 'Publish AsyncAPI Docs'
+name: 'Generate AsyncAPI Documentation Artifacts'
 
 on:
   push:
