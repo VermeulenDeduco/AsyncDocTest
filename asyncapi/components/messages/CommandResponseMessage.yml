@@ -1,0 +1,6 @@
+name: CommandResponseMessage
+title: Command Response
+summary: A confirmation of a previously issued command.
+contentType: application/json
+payload:
+  $ref: '../schemas/CommandResponse.yml'

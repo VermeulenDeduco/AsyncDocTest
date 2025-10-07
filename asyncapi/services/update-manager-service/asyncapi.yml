@@ -1,0 +1,23 @@
+asyncapi: 3.0.0
+info:
+  title: Update Manager Service
+  version: 1.0.0
+  description: Manages and orchestrates the firmware update process.
+
+servers:
+  productionMQTT:
+    host: mqtt.example.com
+    protocol: mqtt
+
+channels:
+  firmwareUpdateRequestTopic:
+    address: 'firmware/update/request'
+    messages:
+      updateRequest:
+        $ref: '../../components/messages/FirmwareUpdateRequestMessage.yml'
+
+operations:
+  processFirmwareUpdateRequest:
+    action: receive
+    channel:
+      $ref: '#/channels/firmwareUpdateRequestTopic'

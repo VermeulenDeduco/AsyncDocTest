@@ -1,0 +1,18 @@
+type: object
+properties:
+  commandId:
+    type: string
+    format: uuid
+    description: A unique identifier for this specific command instance.
+  command:
+    type: string
+    enum:
+      - reboot
+      - shutdown
+      - update
+  issuedAt:
+    type: string
+    format: date-time
+required:
+  - commandId
+  - command

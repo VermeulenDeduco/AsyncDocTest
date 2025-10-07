@@ -1,0 +1,5 @@
+correlationId:
+  description: A reusable correlation id definition
+  location: header
+  schema:
+    type: string

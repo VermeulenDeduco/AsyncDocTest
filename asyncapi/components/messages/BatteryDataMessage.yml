@@ -1,0 +1,6 @@
+name: BatteryDataMessage
+title: Battery Telemetry Data
+summary: An event containing battery status information from a vehicle.
+contentType: application/json
+payload:
+  $ref: '../schemas/BatteryData.yml'

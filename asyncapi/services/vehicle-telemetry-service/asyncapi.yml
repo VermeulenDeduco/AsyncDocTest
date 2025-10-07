@@ -1,0 +1,33 @@
+asyncapi: 3.0.0
+info:
+  title: Vehicle Telemetry Service
+  version: 1.0.0
+  description: This service is responsible for collecting and publishing vehicle telemetry data, such as battery status.
+
+servers:
+  productionMQTT:
+    host: mqtt.example.com
+    protocol: mqtt
+    description: Production MQTT broker for vehicle data.
+
+channels:
+  vehicleBatteryTopic:
+    address: 'vehicle/{vehicleId}/telemetry/battery'
+    description: The topic where battery telemetry data for a specific vehicle is published.
+    parameters:
+      vehicleId:
+        description: The unique identifier for the vehicle.
+        schema:
+          type: string
+    messages:
+      batteryData:
+        $ref: '../../components/messages/BatteryDataMessage.yml'
+
+operations:
+  sendBatteryTelemetry:
+    action: send
+    summary: Publish the latest battery telemetry data for a vehicle.
+    channel:
+      $ref: '#/channels/vehicleBatteryTopic'
+    messages:
+      - $ref: '#/channels/vehicleBatteryTopic/messages/batteryData'

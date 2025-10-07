@@ -1,0 +1,27 @@
+asyncapi: 3.0.0
+info:
+  title: Firmware Dispatcher Service
+  version: 1.0.0
+  description: Dispatches firmware to vehicles and reports final status.
+
+servers:
+  productionMQTT:
+    host: mqtt.example.com
+    protocol: mqtt
+
+channels:
+  firmwareUpdateStatusTopic:
+    address: 'firmware/update/status/{correlationId}'
+    parameters:
+      correlationId:
+        description: The unique ID for this update workflow, provided dynamically.
+        schema: { type: string }
+    messages:
+      updateStatus:
+        $ref: '../../components/messages/FirmwareUpdateStatusMessage.yml'
+
+operations:
+  sendFinalUpdateStatus:
+    action: send
+    channel:
+      $ref: '#/channels/firmwareUpdateStatusTopic'

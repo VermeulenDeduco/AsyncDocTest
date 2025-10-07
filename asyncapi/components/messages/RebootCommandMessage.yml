@@ -1,0 +1,6 @@
+name: RebootCommandMessage
+title: Reboot Command
+summary: A command message to instruct a vehicle to reboot.
+contentType: application/json
+payload:
+  $ref: '../schemas/VehicleCommand.yml'

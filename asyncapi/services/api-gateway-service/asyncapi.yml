@@ -1,0 +1,53 @@
+asyncapi: 3.0.0
+info:
+  title: API Gateway Service
+  version: 1.0.0
+  description: Initiates long-running workflows like firmware updates.
+
+servers:
+  productionMQTT:
+    host: mqtt.example.com
+    protocol: mqtt
+
+channels:
+  firmwareUpdateRequestTopic:
+    address: 'firmware/update/request'
+    messages:
+      updateRequest:
+        summary: A request to start a firmware update for a vehicle.
+        headers:
+          type: object
+          properties:
+            replyTo:
+              type: string
+              description: The topic where the final status should be published.
+              examples: ['firmware/update/status/unique-correlation-id']
+        payload:
+          type: object
+          properties:
+            vehicleId: { type: string }
+            firmwareVersion: { type: string }
+
+  firmwareUpdateStatusTopic:
+    address: null
+    messages:
+      updateStatus:
+        summary: The final status of the firmware update.
+        payload:
+          type: object
+          properties:
+            status: { type: string, enum: [started, in_progress, completed, failed] }
+            details: { type: string }
+
+operations:
+  initiateFirmwareUpdate:
+    action: send
+    channel:
+      $ref: '#/channels/firmwareUpdateRequestTopic'
+    messages:
+      - $ref: '#/channels/firmwareUpdateRequestTopic/messages/updateRequest'
+    reply:
+      address:
+        location: '$message.header#/replyTo'
+      channel:
+        $ref: '#/channels/firmwareUpdateStatusTopic'

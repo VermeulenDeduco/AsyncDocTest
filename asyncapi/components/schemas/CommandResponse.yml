@@ -1,0 +1,19 @@
+type: object
+properties:
+  commandId:
+    type: string
+    format: uuid
+    description: The ID of the command this is a response to.
+  status:
+    type: string
+    enum:
+      - accepted
+      - rejected
+      - completed
+      - failed
+  details:
+    type: string
+    description: Additional details about the outcome of the command.
+required:
+  - commandId
+  - status

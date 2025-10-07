@@ -1,0 +1,9 @@
+name: FirmwareUpdateStatusMessage
+title: Firmware Update Status
+summary: The final status of the firmware update.
+contentType: application/json
+payload:
+  type: object
+  properties:
+    status: { type: string, enum: [started, in_progress, completed, failed] }
+    details: { type: string }

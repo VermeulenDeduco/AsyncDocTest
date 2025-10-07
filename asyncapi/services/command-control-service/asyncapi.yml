@@ -1,0 +1,51 @@
+asyncapi: 3.0.0
+info:
+  title: Command & Control Service
+  version: 1.2.0
+  description: Issues commands to vehicles and processes their responses.
+
+servers:
+  productionMQTT:
+    host: mqtt.example.com
+    protocol: mqtt
+
+channels:
+  commandRequestTopic:
+    address: 'vehicle/{vehicleId}/command/request'
+    parameters:
+      vehicleId:
+        description: The ID of the target vehicle.
+        schema: { type: string }
+    messages:
+      rebootCommand:
+        name: RebootCommandMessage
+        summary: A command to reboot the vehicle's onboard computer.
+        payload:
+          $ref: '../../components/schemas/VehicleCommand.yml'
+
+  commandResponseTopic:
+    address: 'vehicle/{vehicleId}/command/response'
+    parameters:
+      vehicleId:
+        description: The ID of the vehicle sending the response.
+        schema: { type: string }
+    messages:
+      commandConfirmation:
+        name: CommandResponseMessage
+        summary: A confirmation of a previously issued command.
+        payload:
+          $ref: '../../components/schemas/CommandResponse.yml'
+
+operations:
+  sendRebootCommand:
+    action: send
+    summary: Sends a reboot command and waits for a confirmation.
+    channel:
+      $ref: '#/channels/commandRequestTopic'
+    messages:
+      - $ref: '#/channels/commandRequestTopic/messages/rebootCommand'
+    reply:
+      channel:
+        $ref: '#/channels/commandResponseTopic'
+      messages:
+        - $ref: '#/channels/commandResponseTopic/messages/commandConfirmation'

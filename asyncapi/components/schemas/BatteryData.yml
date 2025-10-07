@@ -1,0 +1,23 @@
+type: object
+properties:
+  vehicleId:
+    type: string
+    description: The unique identifier of the vehicle.
+  timestamp:
+    type: string
+    format: date-time
+    description: The ISO 8601 timestamp when the reading was taken.
+  stateOfCharge:
+    type: number
+    format: float
+    minimum: 0
+    maximum: 100
+    description: The battery's state of charge as a percentage.
+  voltage:
+    type: number
+    format: float
+    description: The current voltage of the battery pack.
+required:
+  - vehicleId
+  - timestamp
+  - stateOfCharge

@@ -1,0 +1,11 @@
+headers:
+  type: object
+  properties:
+    traceId:
+      type: string
+      format: uuid
+      description: A unique identifier for tracing the message through the system.
+    sentAt:
+      type: string
+      format: date-time
+      description: The timestamp at which the message was sent.

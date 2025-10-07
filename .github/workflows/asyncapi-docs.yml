@@ -1,0 +1,92 @@
+name: 'Publish AsyncAPI Docs'
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'asyncapi/**'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install AsyncAPI CLI
+        run: npm install -g @asyncapi/cli
+
+      - name: Discover Services
+        id: discover
+        run: |
+          services=$(find asyncapi/services -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | jq -R. | jq -s.)
+          echo "services=$services" >> $GITHUB_OUTPUT
+
+      - name: Validate and Generate Docs
+        uses: actions/matrix-script@v1
+        with:
+          matrix: |
+            { "service": ${{ steps.discover.outputs.services }} }
+          script: |
+            echo "--- Processing Service: ${{ matrix.service }} ---"
+
+            # Define paths
+            SERVICE_PATH="asyncapi/services/${{ matrix.service }}"
+            INPUT_FILE="${SERVICE_PATH}/asyncapi.yml"
+            BUNDLED_FILE="dist/bundled/${{ matrix.service }}.yml"
+            OUTPUT_DIR="dist/docs/${{ matrix.service }}"
+
+            # Create directories
+            mkdir -p dist/bundled
+            mkdir -p "${OUTPUT_DIR}"
+
+            # Step 1: Validate
+            echo "Validating ${INPUT_FILE}..."
+            asyncapi validate "${INPUT_FILE}"
+
+            # Step 2: Bundle
+            echo "Bundling ${INPUT_FILE} to ${BUNDLED_FILE}..."
+            asyncapi bundle "${INPUT_FILE}" --output "${BUNDLED_FILE}"
+
+            # Step 3: Generate HTML
+            echo "Generating docs to ${OUTPUT_DIR}..."
+            asyncapi generate fromTemplate "${BUNDLED_FILE}" @asyncapi/html-template --output "${OUTPUT_DIR}" --force-write
+
+      - name: Create Index Page
+        run: |
+          echo '<!DOCTYPE html><html><head><title>AsyncAPI Documentation</title></head><body><h1>Service Documentation</h1><ul>' > dist/docs/index.html
+          for service in $(echo '${{ steps.discover.outputs.services }}' | jq -r '.'); do
+            echo "<li><a href="./${service}/index.html">${service}</a></li>" >> dist/docs/index.html
+          done
+          echo '</ul></body></html>' >> dist/docs/index.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist/docs'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
