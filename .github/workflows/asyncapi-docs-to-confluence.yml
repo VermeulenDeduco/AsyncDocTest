@@ -41,7 +41,7 @@ jobs:
             # Use a subshell (...) to change directory, run the command, and then automatically return
             # This ensures relative paths inside the YAML ('../common/...') are resolved correctly.
             (cd "$spec_dir" && asyncapi generate fromTemplate "$spec_filename" @asyncapi/html-template@3.3.1 \
-              -o "../../build/docs/$service_name" \
+              --use-new-generator -o "../../build/docs/$service_name" \
               --force-write)
           done
 
