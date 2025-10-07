@@ -1,0 +1,43 @@
+asyncapi: 3.0.0
+info:
+  title: Inventory Service
+  version: 1.0.0
+  description: Manages stock levels for all products.
+
+channels:
+  orderPlacement:
+    address: 'ecommerce/order/placed'
+    messages:
+      OrderPlaced:
+        payload:
+          $ref: '../common/schemas/OrderPayload.yml'
+
+  stockReservation:
+    address: 'ecommerce/inventory/stock_reserved'
+    messages:
+      StockReserved:
+        $ref: '#/components/messages/StockReserved'
+
+operations:
+  onOrderPlaced:
+    action: receive
+    channel:
+      $ref: '#/channels/orderPlacement'
+
+  publishStockReserved:
+    action: send
+    channel:
+      $ref: '#/channels/stockReservation'
+
+components:
+  messages:
+    StockReserved:
+      summary: Confirms that stock has been successfully reserved for an order.
+      payload:
+        type: object
+        properties:
+          orderId:
+            type: string
+          status:
+            type: string
+            enum:

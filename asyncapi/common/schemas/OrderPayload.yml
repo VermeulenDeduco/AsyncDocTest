@@ -1,0 +1,26 @@
+# Defines the payload for an order, referencing the common CustomerInfo schema.
+type: object
+properties:
+  orderId:
+    type: string
+    description: Unique identifier for the order.
+    examples:
+      - ord-abc-123
+  items:
+    type: array
+    description: List of items in the order.
+    items:
+      type: object
+      properties:
+        productId:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+  customer:
+    $ref: './CustomerInfo.yml'
+  shippingAddress:
+    type: string
+    description: The full shipping address.
+    examples:
+      - 123 AsyncAPI Avenue, EDA City, 10101

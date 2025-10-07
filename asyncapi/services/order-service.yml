@@ -1,0 +1,79 @@
+asyncapi: 3.0.0
+info:
+  title: Order Service
+  version: 1.0.0
+  description: >
+    Manages the lifecycle of customer orders. It listens for new orders,
+    requests shipment preparation, and awaits confirmation.
+
+channels:
+  orderPlacement:
+    address: 'ecommerce/order/placed'
+    messages:
+      OrderPlaced:
+        payload:
+          $ref: '../common/schemas/OrderPayload.yml'
+
+  shipmentRequest:
+    address: 'ecommerce/shipping/request'
+    description: >
+      Channel for requesting shipment preparation from the Shipping Service.
+      This is the "request" part of a request-reply pattern.
+    messages:
+      ShipmentPreparationRequested:
+        $ref: '#/components/messages/ShipmentPreparationRequested'
+
+  shipmentReply:
+    address: 'ecommerce/order/shipping_reply'
+    description: >
+      The dedicated channel where the Order Service listens for replies
+      from the Shipping Service. This is the "reply" part.
+    messages:
+      ShipmentPrepared:
+        $ref: '#/components/messages/ShipmentPrepared'
+
+operations:
+  onOrderPlaced:
+    action: receive
+    channel:
+      $ref: '#/channels/orderPlacement'
+
+  requestShipment:
+    action: send
+    channel:
+      $ref: '#/channels/shipmentRequest'
+    messages:
+      - $ref: '#/channels/shipmentRequest/messages/ShipmentPreparationRequested'
+
+  onShipmentPrepared:
+    action: receive
+    channel:
+      $ref: '#/channels/shipmentReply'
+
+components:
+  messages:
+    ShipmentPreparationRequested:
+      summary: A request to prepare an order for shipment.
+      correlationId:
+        location: '$message.header#/correlationId'
+      payload:
+        $ref: '../common/schemas/OrderPayload.yml'
+      bindings:
+        mqtt:
+          # This is key for request-reply: we tell the receiver where to send the reply.
+          responseTopic: 'ecommerce/order/shipping_reply'
+
+    ShipmentPrepared:
+      summary: A confirmation that the shipment has been prepared.
+      correlationId:
+        location: '$message.header#/correlationId'
+      payload:
+        type: object
+        properties:
+          orderId:
+            type: string
+          trackingNumber:
+            type: string
+            description: The tracking number for the shipment.
+            examples:
+              - TN-987654321

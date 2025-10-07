@@ -1,0 +1,61 @@
+#.github/workflows/asyncapi-docs-to-confluence.yml
+
+name: Generate AsyncAPI Documentation Artifacts
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install AsyncAPI CLI
+        run: npm install -g @asyncapi/cli
+
+      - name: Generate HTML Documentation for Each Service
+        id: generate-html
+        run: |
+          mkdir -p build/docs
+          for spec_file in $(find asyncapi/services -name '*.yml'); do
+            service_name=$(basename -s.yml "$spec_file")
+            echo "Generating documentation for $service_name..."
+            asyncapi generate fromTemplate "$spec_file" @asyncapi/html-template@3.3.1 \
+              -o "./build/docs/$service_name" \
+              --force-write
+          done
+
+      - name: Generate System-Wide Architecture Diagram
+        id: generate-diagram
+        run: |
+          # Find all service spec files and format them as a comma-separated list
+          spec_files=$(find asyncapi/services -name '*.yml' | tr '\n' ',')
+          spec_files=${spec_files%,} # Remove the trailing comma
+
+          echo "Generating diagram from files: $spec_files"
+          
+          # Run MessageFlow via Docker to generate the SVG diagram
+          docker run --rm -v "$(pwd)":/work -w /work ghcr.io/holydocs/messageflow:latest \
+            gen-schema \
+            --target d2 \
+            --render-to-file./build/system-diagram.svg \
+            --asyncapi-files "$spec_files"
+
+      - name: Archive Documentation Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-documentation
+          path: build/

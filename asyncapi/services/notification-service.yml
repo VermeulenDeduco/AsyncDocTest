@@ -1,0 +1,46 @@
+asyncapi: 3.0.0
+info:
+  title: Notification Service
+  version: 1.0.0
+  description: >
+    Listens to various business events and sends notifications (email, SMS)
+    to customers.
+
+channels:
+  stockReservation:
+    address: 'ecommerce/inventory/stock_reserved'
+    messages:
+      StockReserved:
+        payload:
+          type: object
+          properties:
+            orderId:
+              type: string
+            status:
+              type: string
+
+  # This service also listens to the shipment reply to notify the customer
+  # that their order has shipped. This shows how one event can have multiple,
+  # independent consumers.
+  shipmentReply:
+    address: 'ecommerce/order/shipping_reply'
+    messages:
+      ShipmentPrepared:
+        payload:
+          type: object
+          properties:
+            orderId:
+              type: string
+            trackingNumber:
+              type: string
+
+operations:
+  onStockReserved:
+    action: receive
+    channel:
+      $ref: '#/channels/stockReservation'
+
+  onShipmentPrepared:
+    action: receive
+    channel:
+      $ref: '#/channels/shipmentReply'
