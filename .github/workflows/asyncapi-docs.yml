@@ -75,6 +75,12 @@ jobs:
           done
           shopt -u nullglob
 
+      - name: Make asset paths relative (fix GitHub Pages)
+        run: |
+          set -euo pipefail
+          echo "Fixing HTML asset paths to be relative..."
+          find dist/docs -type f -name '*.html' -print0 | xargs -0 sed -i -E 's/(href|src)="\//\1=".\/g'
+
       - name: Create Index Page
         run: |
           echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>AsyncAPI Documentation</title></head><body><h1>Service Documentation</h1><ul>' > dist/docs/index.html
