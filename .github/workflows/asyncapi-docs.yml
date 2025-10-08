@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - 'asyncapi/**'
 
 permissions:
   contents: read
@@ -32,9 +30,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
-        run: |
-          npm install -g @asyncapi/cli jq
+      - name: Install AsyncAPI CLI
+        run: npm install -g @asyncapi/cli
 
       - name: Discover Services
         id: discover
@@ -42,35 +39,41 @@ jobs:
           services=$(find asyncapi/services -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | jq -R. | jq -s.)
           echo "services=$services" >> $GITHUB_OUTPUT
 
-      - name: Validate, Bundle and Generate Docs (loop)
-        run: |
-          echo "Services discovered: ${{ steps.discover.outputs.services }}"
-          # iterate over discovered services
-          for service in $(echo '${{ steps.discover.outputs.services }}' | jq -r '.[]'); do
-            echo "----- Processing Service: ${service} -----"
-            SERVICE_PATH="asyncapi/services/${service}"
+      - name: Validate and Generate Docs
+        uses: actions/matrix-script@v1
+        with:
+          matrix: |
+            { "service": ${{ steps.discover.outputs.services }} }
+          script: |
+            echo "--- Processing Service: ${{ matrix.service }} ---"
+            
+            # Define paths
+            SERVICE_PATH="asyncapi/services/${{ matrix.service }}"
             INPUT_FILE="${SERVICE_PATH}/asyncapi.yml"
-            BUNDLED_FILE="dist/bundled/${service}.yml"
-            OUTPUT_DIR="dist/docs/${service}"
-
+            BUNDLED_FILE="dist/bundled/${{ matrix.service }}.yml"
+            OUTPUT_DIR="dist/docs/${{ matrix.service }}"
+            
+            # Create directories
             mkdir -p dist/bundled
             mkdir -p "${OUTPUT_DIR}"
-
+            
+            # Step 1: Validate
             echo "Validating ${INPUT_FILE}..."
             asyncapi validate "${INPUT_FILE}"
-
-            echo "Bundling ${INPUT_FILE} -> ${BUNDLED_FILE}..."
+            
+            # Step 2: Bundle
+            echo "Bundling ${INPUT_FILE} to ${BUNDLED_FILE}..."
             asyncapi bundle "${INPUT_FILE}" --output "${BUNDLED_FILE}"
-
-            echo "Generating HTML docs -> ${OUTPUT_DIR}..."
+            
+            # Step 3: Generate HTML
+            echo "Generating docs to ${OUTPUT_DIR}..."
             asyncapi generate fromTemplate "${BUNDLED_FILE}" @asyncapi/html-template --output "${OUTPUT_DIR}" --force-write
-          done
 
       - name: Create Index Page
         run: |
-          echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>AsyncAPI Documentation</title></head><body><h1>Service Documentation</h1><ul>' > dist/docs/index.html
+          echo '<!DOCTYPE html><html><head><title>AsyncAPI Documentation</title></head><body><h1>Service Documentation</h1><ul>' > dist/docs/index.html
           for service in $(echo '${{ steps.discover.outputs.services }}' | jq -r '.'); do
-            echo "<li><a href="./${service}/index.html">${service}</a></li>" >> dist/docs/index.html
+            echo "<li><a href=\"./${service}/index.html\">${service}</a></li>" >> dist/docs/index.html
           done
           echo '</ul></body></html>' >> dist/docs/index.html
 
