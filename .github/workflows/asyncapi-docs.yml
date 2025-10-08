@@ -70,7 +70,8 @@ jobs:
               asyncapi bundle "${INPUT_FILE}" --output "${BUNDLED_FILE}"
 
               echo "Generating HTML docs -> ${OUTPUT_DIR}..."
-              asyncapi generate from-template "${BUNDLED_FILE}" @asyncapi/html-template --output "${OUTPUT_DIR}" --force-write
+              asyncapi generate fromTemplate "${BUNDLED_FILE}" @asyncapi/html-template --output "${OUTPUT_DIR}" --use-new-generator --force-write
+            fi
           done
           shopt -u nullglob
 
