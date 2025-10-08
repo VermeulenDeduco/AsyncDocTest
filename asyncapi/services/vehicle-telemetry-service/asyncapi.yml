@@ -17,7 +17,6 @@ channels:
     parameters:
       vehicleId:
         description: The unique identifier for the vehicle.
-        location: path
         examples:
           - vehicle-123
     messages:

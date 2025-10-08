@@ -15,7 +15,6 @@ channels:
     parameters:
       correlationId:
         description: The unique ID for this update workflow, provided dynamically.
-        location: path
         examples:
           - 123e4567-e89b-12d3-a456-426614174000
     messages:

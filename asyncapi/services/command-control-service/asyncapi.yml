@@ -15,7 +15,6 @@ channels:
     parameters:
       vehicleId:
         description: The ID of the target vehicle.
-        location: path
         examples:
           - vehicle-123
     messages:
@@ -30,7 +29,6 @@ channels:
     parameters:
       vehicleId:
         description: The ID of the vehicle sending the response.
-        location: path
         examples:
           - vehicle-123
     messages:
