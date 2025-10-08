@@ -36,7 +36,9 @@ channels:
         payload:
           type: object
           properties:
-            status: { type: string, enum: [started, in_progress, completed, failed] }
+            status:
+              type: string
+              enum: [started, in_progress, completed, failed]
             details: { type: string }
 
 operations:

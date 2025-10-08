@@ -15,7 +15,9 @@ channels:
     parameters:
       vehicleId:
         description: The ID of the target vehicle.
-        schema: { type: string }
+        location: path
+        examples:
+          - vehicle-123
     messages:
       rebootCommand:
         name: RebootCommandMessage
@@ -28,7 +30,9 @@ channels:
     parameters:
       vehicleId:
         description: The ID of the vehicle sending the response.
-        schema: { type: string }
+        location: path
+        examples:
+          - vehicle-123
     messages:
       commandConfirmation:
         name: CommandResponseMessage

@@ -17,8 +17,9 @@ channels:
     parameters:
       vehicleId:
         description: The unique identifier for the vehicle.
-        schema:
-          type: string
+        location: path
+        examples:
+          - vehicle-123
     messages:
       batteryData:
         $ref: '../../components/messages/BatteryDataMessage.yml'
