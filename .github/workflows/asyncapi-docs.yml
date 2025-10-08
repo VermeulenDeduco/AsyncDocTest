@@ -79,7 +79,8 @@ jobs:
         run: |
           set -euo pipefail
           echo "Fixing HTML asset paths to be relative..."
-          find dist/docs -type f -name '*.html' -print0 | xargs -0 sed -i -E 's/(href|src)="\//\1=".\/g'
+          # Use '|' as delimiter so we don't need to escape forward slashes
+          find dist/docs -type f -name '*.html' -print0 | xargs -0 sed -i -E 's|(href|src)="/|\1="./|g'
 
       - name: Create Index Page
         run: |
