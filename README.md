@@ -8,7 +8,3 @@ It includes:
  - A short index and example files demonstrating patterns described in the guide.
 
 Use this as a starting point and adapt component versions, hosts, and schemas for your environment.
-
-
-
-
