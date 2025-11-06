@@ -70,31 +70,10 @@ jobs:
               asyncapi bundle "${INPUT_FILE}" --output "${BUNDLED_FILE}"
 
               echo "Generating HTML docs -> ${OUTPUT_DIR}..."
-              asyncapi generate fromTemplate "${BUNDLED_FILE}" @asyncapi/html-template --output "${OUTPUT_DIR}" --use-new-generator --force-write
+              asyncapi generate fromTemplate "${BUNDLED_FILE}" @asyncapi/html-template --output "${OUTPUT_DIR}" --use-new-generator --param singleFile=true --force-write
             fi
           done
           shopt -u nullglob
-
-      - name: Insert <base href="./"> into generated HTML
-        run: |
-          set -euo pipefail
-          echo "Inserting <base href=\"./\"> into each generated HTML <head>..."
-          if [ -d "dist/docs" ]; then
-            find dist/docs -type f -name '*.html' -print0 | while IFS= read -r -d '' file; do
-              # Only insert if not already present
-              if ! grep -q '<base href=' "$file"; then
-                awk '{
-                  print
-                }
-                /<head[^>]*>/ && !done {
-                  print "  <base href=\"./\">"
-                  done=1
-                }' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
-              fi
-            done
-          else
-            echo "No generated docs to patch (dist/docs missing)."
-          fi
 
       - name: Create Index Page
         run: |
